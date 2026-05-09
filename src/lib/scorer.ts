@@ -70,7 +70,7 @@ Respond in EXACTLY this JSON format with no other text:
     const content = data.choices?.[0]?.message?.content || "";
 
     // Parse JSON from the response
-    const jsonMatch = content.match(/\{[^}]+\}/s);
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
       return {
