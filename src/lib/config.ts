@@ -53,7 +53,13 @@ export const SEARCH_QUERIES: SearchQuery[] = [
 export const SCORE_THRESHOLD = 70;
 
 export const FIRECRAWL_API_KEY =
-  process.env.FIRECRAWL_API_KEY || "fc-0b3b145b129646dca2b0999e7a0e669b";
-export const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
-export const OPENROUTER_MODEL =
-  process.env.OPENROUTER_MODEL || "qwen/qwen3-235b-a22b";
+  process.env.FIRECRAWL_API_KEY || "";
+export const OPENROUTER_API_KEY =
+  process.env.OPENROUTER_API_KEY || "";
+
+export const OPENROUTER_MODELS = [
+  "minimax/minimax-m2.5:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+  "inclusionai/ring-2.6-1t:free",
+];

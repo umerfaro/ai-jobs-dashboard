@@ -20,8 +20,6 @@ export async function GET(request: NextRequest) {
       jobs = await getNewJobs();
   }
 
-  // Sort by score descending
   jobs.sort((a, b) => b.score - a.score);
-
   return NextResponse.json({ jobs });
 }

@@ -1,14 +1,21 @@
 import { runAllQueries } from "./scraper";
 import { scoreJobs } from "./scorer";
-import { addJobs, getNewJobs, Job } from "./db";
 
 export interface PipelineResult {
   rawFound: number;
   scored: number;
   passed: number;
-  added: number;
-  totalNew: number;
-  jobs: Job[];
+  jobs: {
+    id: string;
+    title: string;
+    company: string;
+    location: string;
+    url: string;
+    source: string;
+    score: number;
+    matchSummary: string;
+    addedAt: string;
+  }[];
   error?: string;
 }
 
@@ -20,47 +27,45 @@ export async function runPipeline(): Promise<PipelineResult> {
     const rawJobs = await runAllQueries();
 
     if (rawJobs.length === 0) {
-      const newJobs = await getNewJobs();
       return {
         rawFound: 0,
         scored: 0,
         passed: 0,
-        added: 0,
-        totalNew: newJobs.length,
-        jobs: newJobs,
+        jobs: [],
         error: "No jobs found from search queries",
       };
     }
 
-    // Step 2: Score each job with LLM
+    // Step 2: Score each job
     const scoredJobs = await scoreJobs(rawJobs);
 
-    // Step 3: Add to database (deduplicates automatically)
-    const added = await addJobs(scoredJobs);
-
-    const newJobs = await getNewJobs();
-
+    // Return jobs — client handles persistence
     const result = {
       rawFound: rawJobs.length,
       scored: scoredJobs.length,
-      passed: added.length,
-      added: added.length,
-      totalNew: newJobs.length,
-      jobs: newJobs,
+      passed: scoredJobs.length,
+      jobs: scoredJobs.map((j) => ({
+        id: j.id,
+        title: j.title,
+        company: j.company,
+        location: j.location,
+        url: j.url,
+        source: j.source,
+        score: j.score,
+        matchSummary: j.matchSummary,
+        addedAt: j.addedAt,
+      })),
     };
 
-    console.log(`✅ Pipeline complete: ${result.added} new high-scoring jobs added`);
+    console.log(`✅ Pipeline complete: ${result.passed} high-scoring jobs found`);
     return result;
   } catch (err) {
     console.error("Pipeline error:", err);
-    const newJobs = await getNewJobs();
     return {
       rawFound: 0,
       scored: 0,
       passed: 0,
-      added: 0,
-      totalNew: newJobs.length,
-      jobs: newJobs,
+      jobs: [],
       error: err instanceof Error ? err.message : "Unknown error",
     };
   }

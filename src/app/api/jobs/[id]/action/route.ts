@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
   }
 
   const updated = await updateJobStatus(id, action as "Applied" | "Skipped");
-
   if (!updated) {
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
