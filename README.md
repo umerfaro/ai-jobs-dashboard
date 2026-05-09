@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⚡ AI Jobs Dashboard
 
-## Getting Started
+Automated AI job opportunity aggregator that searches, scores, and manages low-competition AI jobs every morning.
 
-First, run the development server:
+**Live URL:** https://ai-jobs-dashboard-umerfaros-projects.vercel.app
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Features
+
+- 🔍 **Smart Search** — 6 Google Dorking queries across Ashby, Lever, Greenhouse, Workable + startup DNA searches
+- 🧠 **LLM Scoring** — AI-powered resume matching (0-100 score) against your skills
+- 📊 **Dashboard** — Clean dark UI with job cards, match summaries, and filters
+- ⚡ **One-Click Actions** — Apply (opens URL) or Skip with status tracking
+- 📁 **Archive** — View all Applied and Skipped jobs for historical tracking
+- ⏰ **Daily Automation** — Cron runs at 9:00 AM PKT automatically
+
+## Architecture
+
+```
+┌─────────────┐     ┌──────────────┐     ┌─────────────┐     ┌─────────────┐
+│  Vercel     │────▶│  Firecrawl   │────▶│  OpenRouter  │────▶│  Dashboard  │
+│  Cron 9AM   │     │  Search API  │     │  LLM Score   │     │  UI        │
+└─────────────┘     └──────────────┘     └─────────────┘     └─────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Search Queries
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Platform | Query Focus |
+|----------|------------|
+| Ashby | AI Agent / Agentic / LLM + n8n/Python/Node |
+| Lever | AI/LLM Engineer + Remote/Ireland/Saudi/Japan |
+| Greenhouse | AI/LLM/GenAI Engineer + Remote/Ireland/Japan |
+| Workable | AI/LLM + Remote/Dubai/Riyadh/UAE |
+| Startup DNA | Series A/B/Seed + Apply |
+| Careers | Equity + Remote/US/Europe |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All queries exclude Pakistan and major aggregators (Indeed, LinkedIn).
 
-## Learn More
+## Setup
 
-To learn more about Next.js, take a look at the following resources:
+### Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `FIRECRAWL_API_KEY` | ✅ | Web scraping API key |
+| `OPENROUTER_API_KEY` | ⚠️ | LLM scoring (fallback to keyword mode without it) |
+| `OPENROUTER_MODEL` | ❌ | Default: `qwen/qwen3-235b-a22b` |
+| `KV_REST_API_URL` | ⚠️ | Vercel KV URL (for production persistence) |
+| `KV_REST_API_TOKEN` | ⚠️ | Vercel KV token (for production persistence) |
+| `CRON_SECRET` | ❌ | Optional cron endpoint protection |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Deploy to Vercel
 
-## Deploy on Vercel
+1. Fork/push this repo to GitHub
+2. Connect to Vercel: `vercel`
+3. Add environment variables in Vercel dashboard
+4. Create a Vercel KV database for production persistence
+5. Cron is configured in `vercel.json` (9:00 AM PKT = 4:00 AM UTC)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Local Development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm install
+cp .env.example .env.local  # Add your API keys
+npm run dev
+```
+
+## Scoring
+
+Jobs are scored 0-100 based on:
+1. **Tech stack alignment** — Python, LLM frameworks, n8n, FastAPI, AI tools
+2. **Company stage** — Startups and early-stage companies get bonus
+3. **Remote/work arrangement** — Remote roles preferred
+4. **Transferable skills** — Flutter, mobile, backend, AWS, CI/CD
+5. **Career progression** — Overall fit with experience
+
+Only jobs scoring **≥ 70** appear on the dashboard.
+
+## API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/jobs?filter=new` | Get new/applied/skipped jobs |
+| GET | `/api/cron/jobs` | Trigger job search pipeline |
+| POST | `/api/jobs/[id]/action` | Apply or skip a job |
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Styling:** Tailwind CSS 4
+- **Scraping:** Firecrawl API
+- **LLM:** OpenRouter (Qwen 3 235B)
+- **Storage:** Vercel KV (prod) / JSON file (dev)
+- **Deployment:** Vercel
+- **Automation:** Vercel Cron (daily 9 AM PKT)
+
+---
+
+Built with ⚡ by [Ayroflow](https://ayroflow.com)
