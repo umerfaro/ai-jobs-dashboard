@@ -1,5 +1,6 @@
 import { runAllQueries } from "./scraper";
 import { scoreJobs } from "./scorer";
+import { DEFAULT_RESUME_TEXT } from "@/data/resume";
 
 export interface PipelineResult {
   rawFound: number;
@@ -19,7 +20,9 @@ export interface PipelineResult {
   error?: string;
 }
 
-export async function runPipeline(): Promise<PipelineResult> {
+export async function runPipeline(resumeText?: string): Promise<PipelineResult> {
+  const resume = resumeText?.trim() || DEFAULT_RESUME_TEXT;
+
   try {
     console.log("🚀 Starting job search pipeline...");
 
@@ -36,10 +39,9 @@ export async function runPipeline(): Promise<PipelineResult> {
       };
     }
 
-    // Step 2: Score each job
-    const scoredJobs = await scoreJobs(rawJobs);
+    // Step 2: Score each job using the provided resume
+    const scoredJobs = await scoreJobs(resume, rawJobs);
 
-    // Return jobs — client handles persistence
     const result = {
       rawFound: rawJobs.length,
       scored: scoredJobs.length,

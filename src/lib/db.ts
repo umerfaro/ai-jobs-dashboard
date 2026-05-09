@@ -1,3 +1,5 @@
+import { DEFAULT_RESUME_TEXT, RESUME_STORAGE_KEY } from "@/data/resume";
+
 export interface Job {
   id: string;
   title: string;
@@ -13,41 +15,41 @@ export interface Job {
   skippedAt?: string;
 }
 
-const STORAGE_KEY = "ai-jobs-data";
+const JOBS_KEY = "ai-jobs-data";
 
-function load(): Job[] {
+function loadJobs(): Job[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const data = localStorage.getItem(JOBS_KEY);
     return data ? JSON.parse(data) : [];
   } catch {
     return [];
   }
 }
 
-function save(jobs: Job[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+function saveJobs(jobs: Job[]) {
+  localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
 }
 
 export function getAllJobs(): Job[] {
-  return load();
+  return loadJobs();
 }
 
 export function getNewJobs(): Job[] {
-  return load().filter((j) => j.status === "New");
+  return loadJobs().filter((j) => j.status === "New");
 }
 
 export function getArchivedJobs(): Job[] {
-  return load().filter(
+  return loadJobs().filter(
     (j) => j.status === "Applied" || j.status === "Skipped"
   );
 }
 
 export function mergeNewJobs(newJobs: Job[]): Job[] {
-  const existing = load();
+  const existing = loadJobs();
   const existingUrls = new Set(existing.map((j) => j.url));
   const unique = newJobs.filter((j) => !existingUrls.has(j.url));
   const combined = [...existing, ...unique];
-  save(combined);
+  saveJobs(combined);
   return unique;
 }
 
@@ -55,7 +57,7 @@ export function updateJobStatus(
   jobId: string,
   status: "Applied" | "Skipped"
 ): Job | null {
-  const jobs = load();
+  const jobs = loadJobs();
   const idx = jobs.findIndex((j) => j.id === jobId);
   if (idx === -1) return null;
 
@@ -66,10 +68,10 @@ export function updateJobStatus(
     jobs[idx].skippedAt = new Date().toISOString();
   }
 
-  save(jobs);
+  saveJobs(jobs);
   return jobs[idx];
 }
 
 export function clearAllJobs() {
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(JOBS_KEY);
 }

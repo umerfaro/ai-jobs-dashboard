@@ -1,46 +1,76 @@
-export const RESUME_TEXT = `
-Muhammad Umer Farooq
-Software Engineer — Flutter, CI/CD, Mobile Development
+export const DEFAULT_RESUME_TEXT = `
+M. SHAHBAZ
++923499490427 | shzalpha1@gmail.com | Hostel city, Islamabad
+Github: https://github.com/Pakzone1
 
 OBJECTIVE
-Software Engineer with hands-on experience in Flutter, CI/CD automation, real-time systems, and backend integrations. Comfortable working across mobile, cloud, APIs, and DevOps tooling. Strong focus on documentation, problem-solving, Git workflows, and continuous learning.
+BS Artificial Intelligence graduate specializing in Agentic AI, enterprise automation, and intelligent systems. I design and deploy AI-powered conversational agents and decision-making frameworks that solve real-world complexities. Proven expertise in building scalable, autonomous tools and integrating AI-driven automation into enterprise workflows.
 
 EDUCATION
-FAST NUCES — BS Software Engineering (CGPA: 3.08) | 2021-2025
+BS Artificial Intelligence (2022 – 2026) — COMSATS University Islamabad
+FSc (2019 - 2021) — BISE Multan
 
-EXPERIENCE
-CareCloud — Junior Software Engineer (June 2025 – Present)
-- Mobile App Development: Developed school management mobile apps automating admissions and scheduling
-- App Publishing: Automated publishing pipelines for iOS and Android using Fastlane + GitHub Actions
-- Code Quality: Implemented clean architecture, code reviews, and Git branching workflows
+WORK EXPERIENCE
+AI Developer — SPSNET (July 2024 – Present)
+• Developing Agentic AI systems and AI-driven enterprise solutions
+• Building LLM-powered AI applications for automation
+• Enterprise SPS Workspace, Next.js platform unifying AI newsletter production, Teams attendance intelligence, and realtime meeting agents
 
-FAST-NUCES — Lab Demonstrator (Feb 2025 – May 2025)
-- Led hands-on lab sessions in DevOps workflows using Docker, Minikube, and GitHub Actions
-- Conducted 16+ training sessions on Kubernetes and CI/CD automation
+AI/ML Developer — Decimal Solutions (July 2025 – January 2026)
+• Designing and deploying Agent-driven systems
+• Creating LLM-integrated applications to streamline business processes
 
-Grayhat — Flutter Intern (June 2024 – Aug 2024)
-- Built real-time messaging app with Firebase, integrated AI-powered voice dubbing
-- Optimized Flutter-Firebase integration using REST APIs
+Senior Moderator — Garena Free Fire (08/2020 - 01/2022)
+• Managed Garena Free Fire PK Community as a Senior Moderator
 
-Fiverr — Level 1 Freelancer (July 2022 – Aug 2025)
-- Delivered cross-platform mobile apps in e-commerce, productivity, and utility domains
+Online Event Organizer — Gameloop & Farlight 84 (08/2020 - 01/2022)
+• Organized gaming events for GameLoop & Farlight 84
 
-CORE SKILLS
-Programming: C/C++, Dart, OOP, SOLID, MVVM/Clean Architecture
-Mobile: Flutter, Bloc, Riverpod, GetX, REST APIs, JSON, Firebase, Sqflite/drift
-DevOps: Git, GitHub Actions, Jenkins, Docker, Fastlane, CI/CD Pipelines
-Cloud & Backend: Firebase, Firebase Functions, MongoDB, AWS (EC2, S3, RDS, IAM)
-Tools: Android Studio, Postman, Chrome DevTools, Linux, Swagger, VS Code
+AI Projects & Innovations
+Conversational AI & Automation:
+• WhatsApp AI Agent (No Meta API) — Handles appointments, orders, voice & vision tasks
+• AI Agents for Discord, Telegram, and Websites — Enhancing user interaction and automation
+• Agentic AI Development — Improving autonomous decision-making in AI systems
 
-PROJECTS
-- Budget IQ: AI-Powered Expense Tracker (Live on Play Store) — Flutter, AI categorization, voice input
-- Dump App: AI-Powered Todo and Notes (Live on Play Store) — AI thought organization
-- CareCloud Family: Employee Portal App
-- Smart Learn: LMS App — Flutter-based with video/audio/quizzes
+Other AI Projects:
+• Resume Analysis AI — Automated resume screening & ranking using NLP
+• AI Interviewer — AI-driven job interview automation & assessment
+• AI Transcribers — Speech-to-text AI models for multilingual transcription
+• B.R.A.I.N (Multi Agent SAAS platform)
+• IBM Watsonx Orchestrate Agents
 
-CERTIFICATIONS
-- AWS Academy: Microservices and CI/CD Pipeline Builder
-- AWS Academy: Cloud Technical Essentials
-- LinkedIn Learning: Flutter Essential Training
-- AWS Academy: Cloud Foundations
+Previous AI & Software Projects:
+1. Face & Mask Detector (OpenCV, Python)
+2. Quran App Hybrid & Classic Snake Game (Python, Flutter, Dart)
+3. Restaurant & Event Management System Web App (Java)
+4. Hospital Management System (MongoDB, SQL, Oracle)
+5. 4-Bit Binary Calculator (Xilinx, FPGA boards)
+6. Regression Models on Datasets (Python)
+
+Skills & Expertise
+• Programming & AI Development: Python, JavaScript, Dart, C++, SQL
+• AI Technologies: TensorFlow, OpenCV, LLMs, Agentic AI
+• Web & App Development: Flutter, Webflow, Flutterflow
+• AI-driven Recruitment Solutions: NLP, AI Resume Screening, Interview Automation
+• Chatbot & AI Agent Development: WhatsApp AI, Discord AI, Telegram AI
+• Game Development & Computer Vision: Pygame, OpenCV
+• Automation & AI-based Decision Systems
 `.trim();
+
+export const RESUME_STORAGE_KEY = "ai-jobs-resume";
+
+// Client-side: get resume from localStorage or default
+export function getResume(): string {
+  if (typeof window === "undefined") return DEFAULT_RESUME_TEXT;
+  try {
+    const saved = localStorage.getItem(RESUME_STORAGE_KEY);
+    return saved || DEFAULT_RESUME_TEXT;
+  } catch {
+    return DEFAULT_RESUME_TEXT;
+  }
+}
+
+export function saveResume(text: string) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(RESUME_STORAGE_KEY, text);
+}

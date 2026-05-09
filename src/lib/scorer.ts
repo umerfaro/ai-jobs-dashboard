@@ -1,5 +1,4 @@
-import { RESUME_TEXT } from "../data/resume";
-import { OPENROUTER_API_KEY, OPENROUTER_MODELS } from "./config";
+import { OPENROUTER_API_KEY, OPENROUTER_MODELS, SCORE_THRESHOLD } from "./config";
 import type { RawJobResult } from "./scraper";
 import type { Job } from "./db";
 
@@ -8,16 +7,17 @@ export interface ScoreResult {
   matchSummary: string;
 }
 
-const SYSTEM_PROMPT = `You are a precise job matcher. Compare the job posting against the candidate's resume and return ONLY valid JSON.
+const SYSTEM_TEMPLATE = (resume: string) =>
+  `You are a precise job matcher. Compare the job posting against the candidate's resume and return ONLY valid JSON.
 
 Resume:
-${RESUME_TEXT}
+${resume}
 
 Score based on:
-1. Tech stack alignment (Python, LLM frameworks, n8n, FastAPI, AI/ML tools) — most important
+1. Tech stack alignment (Python, LLM frameworks, Agentic AI, n8n, FastAPI, AI/ML tools) — most important
 2. Company stage and growth potential (startups, early-stage = bonus)
 3. Remote/work arrangement fit
-4. Transferable skills from Flutter/mobile/backend/AWS/CI-CD experience
+4. Relevant experience (AI Agents, LLM apps, enterprise automation, conversational AI)
 5. Overall career progression fit
 
 Return EXACTLY this JSON with no other text, no markdown:
@@ -25,6 +25,7 @@ Return EXACTLY this JSON with no other text, no markdown:
 
 async function tryModel(
   model: string,
+  resume: string,
   jobTitle: string,
   jobDescription: string
 ): Promise<ScoreResult | null> {
@@ -41,7 +42,7 @@ async function tryModel(
     body: JSON.stringify({
       model,
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: SYSTEM_TEMPLATE(resume) },
         { role: "user", content: prompt },
       ],
       temperature: 0.2,
@@ -49,9 +50,7 @@ async function tryModel(
     }),
   });
 
-  if (!response.ok) {
-    return null;
-  }
+  if (!response.ok) return null;
 
   const data = await response.json();
   const content = data.choices?.[0]?.message?.content || "";
@@ -68,26 +67,23 @@ async function tryModel(
       return null;
     }
   }
-
   return null;
 }
 
 async function scoreWithLLM(
+  resume: string,
   jobTitle: string,
   jobDescription: string
 ): Promise<ScoreResult> {
-  // Try each free model in order, fallback on failure
   for (const model of OPENROUTER_MODELS) {
     try {
-      const result = await tryModel(model, jobTitle, jobDescription);
+      const result = await tryModel(model, resume, jobTitle, jobDescription);
       if (result) return result;
     } catch {
       continue;
     }
   }
 
-  // All models failed — fallback to keyword scoring
-  console.warn("All LLM models failed, using keyword fallback");
   return keywordScore(jobTitle, jobDescription);
 }
 
@@ -144,14 +140,14 @@ function keywordScore(
 }
 
 export async function scoreJobs(
+  resume: string,
   rawJobs: RawJobResult[]
 ): Promise<Job[]> {
-  const { SCORE_THRESHOLD } = await import("./config");
   const scored: Job[] = [];
 
   for (const job of rawJobs) {
     console.log(`📝 Scoring: ${job.title} at ${job.company}`);
-    const result = await scoreWithLLM(job.title, job.description);
+    const result = await scoreWithLLM(resume, job.title, job.description);
 
     if (result.score >= SCORE_THRESHOLD) {
       scored.push({
